@@ -85,32 +85,28 @@ export const useStudents = () => {
   };
 
   // Delete student
-  const removeStudent = async (
-    id: string
-  ) => {
-    try {
-      setError(null);
+  const removeStudent = async (id: string) => {
+  try {
+    await deleteStudent(id);
 
-      await deleteStudent(id);
+    setStudents((prev) =>
+      prev.filter(
+        (student) => student.id !== id
+      )
+    );
+  } catch (error) {
+    setError("Unable to delete student.");
+    throw error;
+  }
+};
 
-      setStudents((prev) =>
-        prev.filter(
-          (student) => student.id !== id
-        )
-      );
-    } catch (error) {
-      setError("Unable to delete student.");
-      throw error;
-    }
-  };
-
-  return {
-    students,
-    loading,
-    error,
-    addStudent,
-    editStudent,
-    removeStudent,
-    loadStudents,
-  };
+ return {
+  students,
+  loading,
+  error,
+  addStudent,
+  editStudent,
+  removeStudent,
+  loadStudents,
+};
 };  

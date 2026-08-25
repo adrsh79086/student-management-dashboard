@@ -95,7 +95,7 @@ export const deleteStudent = async (
   const students = await getStudents();
 
   const filteredStudents = students.filter(
-    (student) => String(student.id) !== id
+    (student) => String(student.id) !== String(id)
   );
 
   localStorage.setItem(

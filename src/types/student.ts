@@ -3,7 +3,6 @@ export interface Student {
 
   firstName: string;
   lastName: string;
-
   email: string;
   phone: string;
 
@@ -11,7 +10,6 @@ export interface Student {
 
   course: string;
   batch: string;
-
   startDate: string;
   trainer: string;
   experience: string;
@@ -25,7 +23,6 @@ export interface Student {
 export interface StudentInput {
   firstName: string;
   lastName: string;
-
   email: string;
   phone: string;
 
@@ -33,7 +30,6 @@ export interface StudentInput {
 
   course: string;
   batch: string;
-
   startDate: string;
   trainer: string;
   experience: string;
@@ -43,3 +39,32 @@ export interface StudentInput {
   score: number;
   pendingAssignments: number;
 }
+
+
+// =========================
+// FILTER OPTIONS
+// =========================
+
+export const COURSES = [
+  "React",
+  "Next.js",
+  "Node.js",
+  "NestJS",
+  "JavaScript",
+  "TypeScript",
+] as const;
+
+
+export const STATUSES = [
+  "Active",
+  "Completed",
+  "Inactive",
+] as const;
+
+
+export const SCORE_RANGES = [
+  "0-40",
+  "41-60",
+  "61-80",
+  "81-100",
+] as const;

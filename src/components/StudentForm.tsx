@@ -20,7 +20,9 @@ const steps = ["Personal", "Course", "Confirm"];
 const schema = Yup.object({
   firstName: Yup.string().required("Required"),
   lastName: Yup.string().required("Required"),
-  email: Yup.string().email("Invalid email").required("Required"),
+  email: Yup.string()
+    .email("Invalid email")
+    .required("Required"),
   phone: Yup.string()
     .matches(/^[0-9]{10}$/, "10 digits required")
     .required("Required"),
@@ -30,15 +32,24 @@ const schema = Yup.object({
   batch: Yup.string().required("Required"),
   startDate: Yup.string().required("Required"),
   trainer: Yup.string().required("Required"),
+
   status: Yup.string()
     .oneOf(["Active", "Completed", "Inactive"])
     .required("Required"),
-  score: Yup.number().min(0).max(100).required("Required"),
-  pendingAssignments: Yup.number().min(0).required("Required"),
+
+  score: Yup.number()
+    .min(0)
+    .max(100)
+    .required("Required"),
+
+  pendingAssignments: Yup.number()
+    .min(0)
+    .required("Required"),
 });
 
 export default function StudentForm() {
   const [step, setStep] = useState(0);
+
   const { addStudent } = useStudents();
 
   const formik = useFormik({
@@ -61,19 +72,29 @@ export default function StudentForm() {
     validationSchema: schema,
 
     onSubmit: async (values) => {
-      await addStudent({
-        ...values,
-        score: Number(values.score),
-        pendingAssignments: Number(
-          values.pendingAssignments
-        ),
-        status: values.status as
-          | "Active"
-          | "Completed"
-          | "Inactive",
-      });
+      try {
+        await addStudent({
+          ...values,
 
-      window.location.href = "/students";
+          score: Number(values.score),
+
+          pendingAssignments: Number(
+            values.pendingAssignments
+          ),
+
+          status: values.status as
+            | "Active"
+            | "Completed"
+            | "Inactive",
+        });
+
+        window.location.href = "/students";
+      } catch (error) {
+        console.error(
+          "Failed to create student:",
+          error
+        );
+      }
     },
   });
 
@@ -91,16 +112,19 @@ export default function StudentForm() {
       onChange={formik.handleChange}
       onBlur={formik.handleBlur}
       error={
-        formik.touched[name] &&
+        Boolean(formik.touched[name]) &&
         Boolean(formik.errors[name])
       }
       helperText={
-        formik.touched[name] &&
-        formik.errors[name]
+        formik.touched[name]
+          ? String(formik.errors[name] ?? "")
+          : ""
       }
-      InputLabelProps={
-        type === "date" ? { shrink: true } : undefined
-      }
+      slotProps={{
+        inputLabel: {
+          shrink:true,
+        },
+      }}
     />
   );
 
@@ -110,7 +134,7 @@ export default function StudentForm() {
     const fields =
       step === 0
         ? [
-            "firstName",
+            "FirstName",
             "lastName",
             "email",
             "phone",
@@ -129,7 +153,11 @@ export default function StudentForm() {
 
     const hasError = fields.some(
       (name) =>
-        errors[name as keyof typeof errors]
+        Boolean(
+          errors[
+            name as keyof typeof errors
+          ]
+        )
     );
 
     if (!hasError) {
@@ -163,23 +191,66 @@ export default function StudentForm() {
           mt: 4,
         }}
       >
+        {/* STEP 1 */}
         {step === 0 && (
           <>
-            {field("firstName", "First Name")}
-            {field("lastName", "Last Name")}
-            {field("email", "Email", "email")}
-            {field("phone", "Phone")}
-            {field("dateOfBirth", "Date of Birth", "date")}
-            {field("experience", "Experience")}
+            {field(
+              "firstName",
+              "First Name"
+            )}
+
+            {field(
+              "lastName",
+              "Last Name"
+            )}
+
+            {field(
+              "email",
+              "Email",
+              "email"
+            )}
+
+            {field(
+              "phone",
+              "Phone"
+            )}
+
+            {field(
+              "dateOfBirth",
+              "Date of Birth",
+              "date"
+            )}
+
+            {field(
+              "experience",
+              "Experience"
+            )}
           </>
         )}
 
+        {/* STEP 2 */}
         {step === 1 && (
           <>
-            {field("course", "Course")}
-            {field("batch", "Batch")}
-            {field("startDate", "Start Date", "date")}
-            {field("trainer", "Trainer")}
+            {field(
+              "course",
+              "Course"
+            )}
+
+            {field(
+              "batch",
+              "Batch"
+            )}
+
+            {field(
+              "startDate",
+              "Start Date",
+              "date"
+            )}
+
+            {field(
+              "trainer",
+              "Trainer"
+            )}
 
             <TextField
               select
@@ -188,6 +259,18 @@ export default function StudentForm() {
               name="status"
               value={formik.values.status}
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={
+                Boolean(formik.touched.status) &&
+                Boolean(formik.errors.status)
+              }
+              helperText={
+                formik.touched.status
+                  ? String(
+                      formik.errors.status ?? ""
+                    )
+                  : ""
+              }
             >
               <MenuItem value="Active">
                 Active
@@ -202,7 +285,12 @@ export default function StudentForm() {
               </MenuItem>
             </TextField>
 
-            {field("score", "Score", "number")}
+            {field(
+              "score",
+              "Score",
+              "number"
+            )}
+
             {field(
               "pendingAssignments",
               "Pending Assignments",
@@ -211,21 +299,26 @@ export default function StudentForm() {
           </>
         )}
 
+        {/* STEP 3 */}
         {step === 2 && (
           <Box>
             <h2>Confirm Details</h2>
 
-            {Object.entries(formik.values).map(
-              ([key, value]) => (
-                <p key={key}>
-                  <strong>{key}: </strong>
-                  {String(value)}
-                </p>
-              )
-            )}
+            {Object.entries(
+              formik.values
+            ).map(([key, value]) => (
+              <p key={key}>
+                <strong>
+                  {key}:{" "}
+                </strong>
+
+                {String(value)}
+              </p>
+            ))}
           </Box>
         )}
 
+        {/* BUTTONS */}
         <Box
           sx={{
             display: "flex",
